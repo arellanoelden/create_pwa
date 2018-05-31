@@ -5,14 +5,24 @@ import os
 # USAGE: pass 2 arguments
 # arg 1: directory in which files for index.html,sw,js,app.js and manifest.json will be created
 # arg 2: photo which will serve as icon for your pwa, will be resized to dimensions of widths 48,64,192,512
-def main():
+
+def check_args(args):
   if len(sys.argv) < 3:
-    print("Please pass an img in order to create the icon for your pwa")
+    print("Please pass a directory and an img in order to create the icon for your pwa")
     sys.exit(0);
+  imgsrc = sys.argv[2]
+  if not imgsrc.endswith("png") and not imgsrc.endswith("jpg") and not imgsrc.endsWith("jpeg") and not imgsrc.endswith("svg") and not imgsrc.endswith("gif"):
+    print("The second argument is not an img")
+    sys.exit(0)
+    
+def main():
+  check_args(sys.argv)
+  # assign arguments
   directory = sys.argv[1]
+  imgsrc = sys.argv[2]
+  # create directory if it doesn't exist
   if not os.path.exists(directory):
     os.makedirs(directory)
-  imgsrc = sys.argv[2]
   imgext,imgname = imgsrc[::-1].split(".",1)
   imgname = (imgname.split("/",1)[0])[::-1]
   imgext = imgext[::-1]
@@ -52,7 +62,6 @@ def main():
 
   fsw = open(directory + "/" + 'sw.js','w')
   message = """
-
   // Cache ID version
   const cacheID = 'v1';
   // Files to precache
@@ -120,9 +129,8 @@ def main():
 
   fsw.write(message)
   fsw.close()
-
+  
   fapp = open(directory + "/" + 'app.js','w')
-
   message = """
   // check if service is supported by users browsers
   if ('serviceWorker' in navigator) {
@@ -146,9 +154,8 @@ def main():
 
   fapp.write(message)
   fapp.close()
-
+  
   findex = open(directory + "/" + 'index.html','w')
-
   message = """
   <html>
     <head>
@@ -156,8 +163,8 @@ def main():
       <meta name="theme-color" content="#002856" />
       <link rel="manifest" href="manifest.json">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <script src="sw.js"></script>
-      <script src="app.js"></script>
+      <script src="sw.js" defer></script>
+      <script src="app.js" defer></script>
     </head>
     <body>
       <p>Hello World!</p>
